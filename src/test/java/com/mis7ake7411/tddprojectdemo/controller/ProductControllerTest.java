@@ -44,4 +44,14 @@ public class ProductControllerTest {
         .andDo(print())
         .andExpect(status().isNotFound());
   }
+
+  @Test
+  public void getProducts_success() throws Exception {
+    // Given
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/products");
+    // When & Then
+    mockMvc.perform(requestBuilder)
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 }
