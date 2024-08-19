@@ -6,19 +6,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mis7ake7411.tddprojectdemo.model.Product;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ProductControllerTest {
   @Autowired
   private MockMvc mockMvc;
+
+  private ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
   public void getProduct_success() throws Exception {
@@ -52,5 +58,50 @@ public class ProductControllerTest {
     mockMvc.perform(requestBuilder)
         .andDo(print())
         .andExpect(status().isOk());
+  }
+
+  @Transactional
+  @Test
+  public void createProduct_success() throws Exception {
+    Product product = Product.builder()
+        .productName("Banana")
+        .category("FOOD")
+        .price(20.0)
+        .stock(50)
+        .build();
+
+    String jsonObj = objectMapper.writeValueAsString(product);
+    // Given
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/products")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonObj);
+
+    // When & Then
+    mockMvc.perform(requestBuilder)
+        .andDo(print())
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.productName", equalTo("Banana")))
+        .andExpect(jsonPath("$.category", equalTo("FOOD")))
+        .andExpect(jsonPath("$.price", equalTo(20.0)))
+        .andExpect(jsonPath("$.stock", equalTo(50)));
+  }
+
+  @Transactional
+  @Test
+  public void createProduct_badRequest() throws Exception {
+    Product product = Product.builder()
+        .productName("Banana")
+        .build();
+
+    String jsonObj = objectMapper.writeValueAsString(product);
+    // Given
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/products")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonObj);
+
+    // When & Then
+    mockMvc.perform(requestBuilder)
+        .andDo(print())
+        .andExpect(status().isBadRequest());
   }
 }
