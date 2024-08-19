@@ -11,13 +11,13 @@ import lombok.Data;
 import lombok.Generated;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "product")
 public class Product {
+
   @Id
   @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
   private Integer id;
