@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ProductControllerTest {
+
   @Autowired
   private MockMvc mockMvc;
 
@@ -73,13 +74,14 @@ public class ProductControllerTest {
     String jsonObj = objectMapper.writeValueAsString(product);
     // Given
     RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/products")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonObj);
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(jsonObj);
 
     // When & Then
     mockMvc.perform(requestBuilder)
         .andDo(print())
         .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id", equalTo(3)))
         .andExpect(jsonPath("$.productName", equalTo("Banana")))
         .andExpect(jsonPath("$.category", equalTo("FOOD")))
         .andExpect(jsonPath("$.price", equalTo(20.0)))
@@ -96,12 +98,23 @@ public class ProductControllerTest {
     String jsonObj = objectMapper.writeValueAsString(product);
     // Given
     RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/products")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonObj);
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(jsonObj);
 
     // When & Then
     mockMvc.perform(requestBuilder)
         .andDo(print())
         .andExpect(status().isBadRequest());
+  }
+
+  @Transactional
+  @Test
+  public void deleteProduct_success() throws Exception {
+    // Given
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.delete("/products/{id}", 2);
+    // When & Then
+    mockMvc.perform(requestBuilder)
+        .andDo(print())
+        .andExpect(status().isOk());
   }
 }
