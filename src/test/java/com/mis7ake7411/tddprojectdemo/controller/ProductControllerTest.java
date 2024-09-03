@@ -117,4 +117,50 @@ public class ProductControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
   }
+
+  @Transactional
+  @Test
+  public void updateProduct_success() throws Exception {
+    Product product = Product.builder()
+        .id(1)
+        .productName("Book Of Life")
+        .category("BOOK")
+        .price(30.0)
+        .stock(10)
+        .build();
+
+    String objJson = objectMapper.writeValueAsString(product);
+    // Given
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/products/{id}", 1)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objJson);
+    // When & Then
+    mockMvc.perform(requestBuilder)
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", equalTo(1)))
+        .andExpect(jsonPath("$.productName", equalTo("Book Of Life")))
+        .andExpect(jsonPath("$.category", equalTo("BOOK")))
+        .andExpect(jsonPath("$.price", equalTo(30.0)))
+        .andExpect(jsonPath("$.stock", equalTo(10)));
+  }
+
+  @Transactional
+  @Test
+  public void updateProduct_notFound() throws Exception {
+    Product product = Product.builder()
+        .id(100)
+        .productName("Book Of Life")
+        .build();
+
+    String objJson = objectMapper.writeValueAsString(product);
+    // Given
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/products/{id}", 100)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objJson);
+    // When & Then
+    mockMvc.perform(requestBuilder)
+        .andDo(print())
+        .andExpect(status().isNotFound());
+  }
 }
