@@ -1,7 +1,7 @@
 package com.mis7ake7411.tddprojectdemo.controller;
 
 import com.mis7ake7411.tddprojectdemo.model.Product;
-import com.mis7ake7411.tddprojectdemo.repository.ProductRepositroy;
+import com.mis7ake7411.tddprojectdemo.repository.ProductRepository;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
   @Autowired
-  ProductRepositroy productRepository;
+  ProductRepository productRepository;
 
   @GetMapping("/products/{id}")
   public ResponseEntity<Product> getProduct(@PathVariable Integer id) {

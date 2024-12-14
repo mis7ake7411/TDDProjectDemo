@@ -1,10 +1,10 @@
 package com.mis7ake7411.tddprojectdemo.repository;
 
-import com.mis7ake7411.tddprojectdemo.model.Gym;
+import com.mis7ake7411.tddprojectdemo.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 @Component
-public interface GymRepositroy extends JpaRepository<Gym, Long> {
-
+public interface ProductRepository extends JpaRepository<Product, Integer> {
+  Product getProductById(Integer id);
 }
