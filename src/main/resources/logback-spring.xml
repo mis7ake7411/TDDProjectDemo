@@ -1,0 +1,15 @@
+<configuration>
+  <property name="CONSOLE_LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %cyan(%logger{36}) - %msg%n"/>
+`
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <!-- 使用 ANSI 颜色编碼，並包含文件名和行號 -->
+      <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %magenta([%thread]) %cyan(%logger{15}) : \( %green(%line) \) - %yellow(%msg%n)</pattern>
+      <charset>UTF-8</charset> <!-- 控制台也要使用UTF-8，否則會中文亂碼 -->
+    </encoder>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="console" />
+  </root>
+</configuration>

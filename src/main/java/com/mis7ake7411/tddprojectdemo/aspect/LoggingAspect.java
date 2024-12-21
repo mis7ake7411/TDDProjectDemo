@@ -27,18 +27,17 @@ public class LoggingAspect {
   // 前置通知：方法執行前
   @Before("userServiceMethods()")
   public void logBefore(JoinPoint joinPoint) {
-    System.out.println("Before method: " +
-        joinPoint.getSignature().getName() +
-        ", Arguments: " + Arrays.toString(joinPoint.getArgs())
+    log.info("@Before 在方法前執行 -> {} , 參數: {}" ,
+        joinPoint.getSignature().getName(),
+        Arrays.toString(joinPoint.getArgs())
     );
   }
 
   // 後置通知：方法執行後
   @After("userServiceMethods()")
   public void logAfter(JoinPoint joinPoint) {
-    System.out.println("After method: " +
-        joinPoint.getSignature().getName() +
-        " completed"
+    log.info("@After 在方法後執行 -> {}  " ,
+        joinPoint.getSignature().getName()
     );
   }
 
@@ -50,7 +49,7 @@ public class LoggingAspect {
       Object proceed = joinPoint.proceed();
 
       long executionTime = System.currentTimeMillis() - start;
-      log.info("Method {} executed in {} ms",
+      log.info("@Around 方法 -> {} executed in {} ms",
           joinPoint.getSignature(), executionTime);
 
       return proceed;

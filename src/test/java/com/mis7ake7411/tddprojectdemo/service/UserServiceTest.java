@@ -21,7 +21,7 @@ public class UserServiceTest {
 
     // 創建用戶
     User newUser = new User();
-    newUser.setUsername("testuser");
+    newUser.setUsername("testUser");
     newUser.setEmail("testuser@example.com");
 
     // 保存用戶
@@ -29,7 +29,7 @@ public class UserServiceTest {
 
     // 驗證
     assertNotNull(savedUser.getId());
-    assertEquals("testuser", savedUser.getUsername());
+    assertEquals("testUser", savedUser.getUsername());
     assertEquals("testuser@example.com", savedUser.getEmail());
   }
 
@@ -42,7 +42,7 @@ public class UserServiceTest {
     userService.createUser(user);
 
     // 更新郵箱
-    User updatedUser = userService.updateUserEmail("updateuser", "updated@example.com");
+    User updatedUser = userService.updateUserEmail("updateUser", "updated@example.com");
 
     // 驗證
     assertNotNull(updatedUser);
@@ -53,7 +53,7 @@ public class UserServiceTest {
   public void testDeleteUser() {
     // 創建用戶
     User user = new User();
-    user.setUsername("deleteuser");
+    user.setUsername("deleteUser");
     user.setEmail("delete@example.com");
     userService.createUser(user);
 
