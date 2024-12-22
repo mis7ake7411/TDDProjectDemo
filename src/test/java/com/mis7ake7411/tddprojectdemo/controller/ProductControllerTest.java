@@ -81,7 +81,7 @@ public class ProductControllerTest {
     mockMvc.perform(requestBuilder)
         .andDo(print())
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id", equalTo(3)))
+        .andExpect(jsonPath("$.id", equalTo(4)))
         .andExpect(jsonPath("$.productName", equalTo("Banana")))
         .andExpect(jsonPath("$.category", equalTo("FOOD")))
         .andExpect(jsonPath("$.price", equalTo(20.0)))

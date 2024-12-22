@@ -37,7 +37,7 @@ public class UserServiceTest {
   public void testUpdateUserEmail() {
     // 創建初始用戶
     User user = new User();
-    user.setUsername("updateuser");
+    user.setUsername("updateUser");
     user.setEmail("original@example.com");
     userService.createUser(user);
 
