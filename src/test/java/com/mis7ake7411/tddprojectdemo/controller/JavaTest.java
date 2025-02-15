@@ -1,5 +1,7 @@
 package com.mis7ake7411.tddprojectdemo.controller;
 
+import org.junit.jupiter.api.Test;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,6 +42,14 @@ public class JavaTest {
       return null;
     }
   }
+
+    // 轉換成base64格式的測試method
+  @Test
+    public void  testToBase64() {
+        String str = "test";
+        String base64 = java.util.Base64.getEncoder().encodeToString(str.getBytes());
+    System.out.println(base64);
+    }
 
 
 

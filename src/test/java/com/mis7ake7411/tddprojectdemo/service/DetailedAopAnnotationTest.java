@@ -58,8 +58,8 @@ public class DetailedAopAnnotationTest {
   public void testAfterReturningAnnotation() {
     log.info("\n=== @AfterReturning 注解測試 ===");
     String result = demoService.afterReturningTest("返回測試");
-    assertNotNull(result);
     System.out.println("-> " + result);
+    assertNotNull(result);
   }
 
   // 預期輸出順序：
@@ -83,7 +83,7 @@ public class DetailedAopAnnotationTest {
   @DisplayName("測試 @Around 注解")
   public void testAroundAnnotation() throws InterruptedException {
     log.info("\n=== @Around 注解測試 ===");
-    String result = demoService.aroundTest(1000); // 執行1秒
+    String result = demoService.aroundTest(5000); // 執行1秒
     assertNotNull(result);
   }
 }
