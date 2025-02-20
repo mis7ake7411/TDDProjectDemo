@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class SortCriteria {
-  private String key;         // 排序字段
-  private boolean ascending;  // 是否升序
+  /** 排序欄位名稱 */
+  private String key;
+  /** 是否升序 */
+  private boolean ascending;
 }

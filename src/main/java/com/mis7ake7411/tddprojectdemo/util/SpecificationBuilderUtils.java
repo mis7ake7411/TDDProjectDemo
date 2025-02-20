@@ -1,12 +1,16 @@
 package com.mis7ake7411.tddprojectdemo.util;
 
 import com.mis7ake7411.tddprojectdemo.enums.SearchOperationEnum;
+import com.mis7ake7411.tddprojectdemo.model.HavingCriteria;
+import com.mis7ake7411.tddprojectdemo.model.JoinCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SearchCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SortCriteria;
 import jakarta.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -15,7 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
  * 此類用於建構 JPA Specification 查詢條件，支援多種查詢操作、排序和分組功能。
  * </p>
  */
-public class SpecificationBuilderUtils<T> {
+public class SpecificationBuilderUtils {
 
     /**
      * 建構基本查詢條件
@@ -26,7 +30,7 @@ public class SpecificationBuilderUtils<T> {
      */
     public static <T> Specification<T> build(List<SearchCriteria<?>> criteriaList) {
         return build(criteriaList != null ? criteriaList : new ArrayList<>(),
-            null, null);
+            null, null, null);
     }
 
     /**
@@ -37,9 +41,27 @@ public class SpecificationBuilderUtils<T> {
      * @param <T> 實體類型
      * @return 查詢規格
      */
-    public static <T> Specification<T> build(List<SearchCriteria<?>> criteriaList, List<SortCriteria> orderByList) {
+    public static <T> Specification<T> build(List<SearchCriteria<?>> criteriaList,
+        List<SortCriteria> orderByList) {
+
         return build(criteriaList != null ? criteriaList : new ArrayList<>(),
-            orderByList != null ? orderByList : new ArrayList<>(), null);
+            orderByList != null ? orderByList : new ArrayList<>(), null, null);
+    }
+
+    /**
+     * 建構帶排序和分組的查詢條件
+     *
+     * @param criteriaList 查詢條件列表
+     * @param orderByList 排序條件列表
+     * @param groupByList 分組條件列表
+     * @param <T> 實體類型
+     * @return 查詢規格
+     */
+    public static <T> Specification<T> build(List<SearchCriteria<?>> criteriaList,
+        List<SortCriteria> orderByList, List<String> groupByList) {
+        return build(criteriaList != null ? criteriaList : new ArrayList<>(),
+            orderByList != null ? orderByList : new ArrayList<>(),
+            groupByList != null ? groupByList : new ArrayList<>(), null);
     }
 
     /**
@@ -48,10 +70,13 @@ public class SpecificationBuilderUtils<T> {
      * @param criteriaList 查詢條件列表
      * @param orderByList 排序條件列表
      * @param groupByList 分組條件列表
+     * @param havingList having 子句條件列表
      * @param <T> 實體類型
      * @return 查詢規格
      */
-    public static <T> Specification<T> build(List<SearchCriteria<?>> criteriaList,List<SortCriteria> orderByList, List<String> groupByList) {
+    public static <T> Specification<T> build(List<SearchCriteria<?>> criteriaList,List<SortCriteria> orderByList,
+        List<String> groupByList, List<HavingCriteria<?>> havingList) {
+
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -72,29 +97,37 @@ public class SpecificationBuilderUtils<T> {
                 }
             }
 
-            // where 條件
-            query.where(predicates.toArray(new Predicate[0]));
+            if (query != null) {
+                // where 條件
+                query.where(predicates.toArray(new Predicate[0]));
 
-            // group by 條件
-            if (groupByList != null && !groupByList.isEmpty()) {
-                List<Expression<?>> groupByExpressions = new ArrayList<>();
-                for (String field : groupByList) {
-                    groupByExpressions.add(root.get(field));
-                }
-                query.groupBy(groupByExpressions);
-            }
-
-            // order by 條件
-            if (orderByList != null && !orderByList.isEmpty()) {
-                List<Order> orders = new ArrayList<>();
-                for (SortCriteria sortCriteria : orderByList) {
-                    if (sortCriteria.isAscending()) {
-                        orders.add(criteriaBuilder.asc(root.get(sortCriteria.getKey())));
-                    } else {
-                        orders.add(criteriaBuilder.desc(root.get(sortCriteria.getKey())));
+                // group by 條件
+                if (groupByList != null && !groupByList.isEmpty()) {
+                    List<Expression<?>> groupByExpressions = new ArrayList<>();
+                    for (String field : groupByList) {
+                        groupByExpressions.add(root.get(field));
                     }
+                    query.groupBy(groupByExpressions);
                 }
-                query.orderBy(orders);
+
+                // order by 條件
+                if (orderByList != null && !orderByList.isEmpty()) {
+                    List<Order> orderExpressions  = new ArrayList<>();
+                    for (SortCriteria sortCriteria : orderByList) {
+                        if (sortCriteria.isAscending()) {
+                            orderExpressions .add(criteriaBuilder.asc(root.get(sortCriteria.getKey())));
+                        } else {
+                            orderExpressions .add(criteriaBuilder.desc(root.get(sortCriteria.getKey())));
+                        }
+                    }
+                    query.orderBy(orderExpressions);
+                }
+
+                // having 條件
+                if (havingList != null && !havingList.isEmpty()) {
+                    List<Predicate> havingPredicates = buildHavingPredicates(havingList, root, criteriaBuilder);
+                    query.having(havingPredicates.toArray(new Predicate[0]));
+                }
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -111,7 +144,10 @@ public class SpecificationBuilderUtils<T> {
      * @return 查詢條件 Predicate
      * @throws IllegalArgumentException 當查詢操作不支援時拋出
      */
-    private static <T> Predicate buildPredicate(SearchCriteria<?> criteria, Root<T> root, CriteriaBuilder criteriaBuilder) {
+    private static <T> Predicate buildPredicate(SearchCriteria<?> criteria, Root<T> root,
+        CriteriaBuilder criteriaBuilder) {
+
+        // 處理常規查詢
         switch (criteria.getOperation()) {
             case EQUAL:
                 return criteriaBuilder.equal(root.get(criteria.getKey()), criteria.getValue());
@@ -126,40 +162,47 @@ public class SpecificationBuilderUtils<T> {
             case IN:
                 if (criteria.getValue() instanceof Collection) {
                     return root.get(criteria.getKey()).in((Collection<?>) criteria.getValue());
+                } else {
+                    throw new IllegalArgumentException("IN 操作需要傳入集合類型的值");
                 }
             case NOT_IN:
                 if (criteria.getValue() instanceof Collection) {
                     return criteriaBuilder.not(root.get(criteria.getKey()).in((Collection<?>) criteria.getValue()));
+                } else {
+                    throw new IllegalArgumentException("NOT IN 操作需要傳入集合類型的值");
                 }
             case GREATER_THAN:
                 if (criteria.getValue() instanceof Comparable) {
                     return criteriaBuilder.greaterThan(root.get(criteria.getKey()), (Comparable) criteria.getValue());
+                } else {
+                    throw new IllegalArgumentException("GREATER_THAN_OR_EQUAL 操作需要 Comparable 類型的值");
                 }
-                break;
             case GREATER_THAN_OR_EQUAL:
                 if (criteria.getValue() instanceof Comparable) {
                     return criteriaBuilder.greaterThanOrEqualTo(root.get(criteria.getKey()), (Comparable) criteria.getValue());
+                } else {
+                    throw new IllegalArgumentException("LESS_THAN 操作需要 Comparable 類型的值");
                 }
-                break;
             case LESS_THAN:
                 if (criteria.getValue() instanceof Comparable) {
                     return criteriaBuilder.lessThan(root.get(criteria.getKey()), (Comparable) criteria.getValue());
                 }
-                break;
             case LESS_THAN_OR_EQUAL:
                 if (criteria.getValue() instanceof Comparable) {
                     return criteriaBuilder.lessThanOrEqualTo(root.get(criteria.getKey()), (Comparable) criteria.getValue());
+                } else {
+                    throw new IllegalArgumentException("LESS_THAN_OR_EQUAL 操作需要 Comparable 類型的值");
                 }
-                break;
             case BETWEEN:
-                if (criteria.getValue() instanceof List) {
-                    List<?> values = (List<?>) criteria.getValue();
+                if (criteria.getValue() instanceof List<?> values) {
                     if (values.size() == 2 && values.get(0) instanceof Comparable && values.get(1) instanceof Comparable) {
                         Path<Comparable> path = root.get(criteria.getKey());
-                        return criteriaBuilder.between(path, 
-                            (Comparable) values.get(0), 
-                            (Comparable) values.get(1));
+                        return criteriaBuilder.between(path, (Comparable) values.get(0), (Comparable) values.get(1));
+                    } else {
+                        throw new IllegalArgumentException("BETWEEN 操作需要包含兩個 Comparable 值的列表");
                     }
+                } else {
+                    throw new IllegalArgumentException("BETWEEN 操作需要傳入列表");
                 }
             case IS_NULL:
                 return criteriaBuilder.isNull(root.get(criteria.getKey()));
@@ -168,7 +211,137 @@ public class SpecificationBuilderUtils<T> {
             default:
                 throw new IllegalArgumentException("查詢條件不支援: " + criteria.getOperation());
         }
-        return null;
     }
+
+    /**
+     * 構建 HAVING 條件
+     *
+     * @param havingList having 條件列表
+     * @param root JPA Root 物件
+     * @param criteriaBuilder JPA CriteriaBuilder 物件
+     * @param <T> 實體類型
+     * @return HAVING 條件 Predicate 列表
+     */
+    private static <T> List<Predicate> buildHavingPredicates(List<HavingCriteria<?>> havingList, Root<T> root, CriteriaBuilder criteriaBuilder) {
+        List<Predicate> havingPredicates = new ArrayList<>();
+
+        for (HavingCriteria<?> having : havingList) {
+            Expression<? extends Number> aggregateExpression;
+            Comparable<Object> comparableValue;
+            // 確認 value 是否為 Comparable
+            if (!(having.getValue() instanceof Comparable)) {
+                throw new IllegalArgumentException("HAVING 條件的值必須是 Comparable 類型");
+            } else {
+                comparableValue = (Comparable<Object>) having.getValue();
+            }
+
+            // 生成聚合函數的 Expression
+            switch (having.getAggregationFunction().toUpperCase()) {
+                case "SUM":
+                    aggregateExpression = criteriaBuilder.sum(root.get(having.getKey())).as(Number.class);
+                    break;
+                case "COUNT":
+                    aggregateExpression = criteriaBuilder.count(root.get(having.getKey())).as(Number.class);
+                    break;
+                case "AVG":
+                    aggregateExpression = criteriaBuilder.avg(root.get(having.getKey())).as(Number.class);
+                    break;
+                case "MAX":
+                    aggregateExpression = criteriaBuilder.max(root.get(having.getKey())).as(Number.class);
+                    break;
+                case "MIN":
+                    aggregateExpression = criteriaBuilder.min(root.get(having.getKey())).as(Number.class);
+                    break;
+                default:
+                    throw new IllegalArgumentException("不支援的聚合函數: " + having.getAggregationFunction());
+            }
+
+            // 構建 Predicate，基於比較運算子
+            switch (having.getOperation()) {
+                case EQUAL:
+                    havingPredicates.add(criteriaBuilder.equal(aggregateExpression, comparableValue));
+                    break;
+                case GREATER_THAN:
+                    havingPredicates.add(criteriaBuilder.greaterThan((Expression<Comparable>) aggregateExpression, comparableValue));
+                    break;
+                case GREATER_THAN_OR_EQUAL:
+                    havingPredicates.add(criteriaBuilder.greaterThanOrEqualTo((Expression<Comparable>) aggregateExpression, comparableValue));
+                    break;
+                case LESS_THAN:
+                    havingPredicates.add(criteriaBuilder.lessThan((Expression<Comparable>) aggregateExpression, comparableValue));
+                    break;
+                case LESS_THAN_OR_EQUAL:
+                    havingPredicates.add(criteriaBuilder.lessThanOrEqualTo((Expression<Comparable>) aggregateExpression, comparableValue));
+                    break;
+                default:
+                    throw new IllegalArgumentException("HAVING 比較操作不支援: " + having.getOperation());
+            }
+        }
+
+        return havingPredicates;
+    }
+
+    /**
+     * 建構帶子查詢的查詢條件
+     *
+     * @param searchCriteriaList 查詢條件列表
+     * @param joinCriteriaList JOIN 條件列表
+     * @param <T> 實體類型
+     * @return 查詢規格
+     */
+    public static <T> Specification<T> buildWithSubQuery(List<SearchCriteria<?>> searchCriteriaList, List<JoinCriteria> joinCriteriaList) {
+        return (root, query, criteriaBuilder) -> {
+
+            List<Predicate> predicates = new ArrayList<>();
+            Map<String, Join<?, ?>> joins = new HashMap<>();
+
+            // 處理 JOIN
+            if (joinCriteriaList != null) {
+                for (JoinCriteria joinCriteria : joinCriteriaList) {
+                    joins.put(joinCriteria.getAttribute(),
+                        root.join(joinCriteria.getAttribute(), joinCriteria.getJoinType()));
+                }
+            }
+
+            // 處理 WHERE 條件
+            for (SearchCriteria criteria : searchCriteriaList) {
+                Path<?> path;
+
+                // 檢查是否來自 JOIN
+                if (criteria.getKey().contains(".")) {
+                    String[] parts = criteria.getKey().split("\\.");
+                    Join<?, ?> join = joins.get(parts[0]);
+                    path = join.get(parts[1]);
+                } else {
+                    path = root.get(criteria.getKey());
+                }
+
+                switch (criteria.getOperation()) {
+                    case EQUAL:
+                        predicates.add(criteriaBuilder.equal(path, criteria.getValue()));
+                        break;
+                    case LIKE:
+                        predicates.add(criteriaBuilder.like(path.as(String.class), "%" + criteria.getValue() + "%"));
+                        break;
+                    case IN:
+                        if (criteria.getValue() instanceof Collection) {
+                            predicates.add(path.in((Collection<?>) criteria.getValue()));
+                        }
+                        break;
+                    case GREATER_THAN:
+                        predicates.add(criteriaBuilder.greaterThan(path.as(Comparable.class), (Comparable) criteria.getValue()));
+                        break;
+                    case LESS_THAN:
+                        predicates.add(criteriaBuilder.lessThan(path.as(Comparable.class), (Comparable) criteria.getValue()));
+                        break;
+                    default:
+                        throw new IllegalArgumentException("不支援的查詢操作: " + criteria.getOperation());
+                }
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
 }
 
