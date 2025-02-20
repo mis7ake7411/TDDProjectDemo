@@ -1,6 +1,6 @@
 package com.mis7ake7411.tddprojectdemo.service;
 
-import com.mis7ake7411.tddprojectdemo.model.User;
+import com.mis7ake7411.tddprojectdemo.entity.User;
 import com.mis7ake7411.tddprojectdemo.repository.UserRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

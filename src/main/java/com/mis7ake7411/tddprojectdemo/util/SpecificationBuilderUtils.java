@@ -1,8 +1,8 @@
 package com.mis7ake7411.tddprojectdemo.util;
 
 import com.mis7ake7411.tddprojectdemo.enums.SearchOperationEnum;
-import com.mis7ake7411.tddprojectdemo.model.base.SearchCriteria;
-import com.mis7ake7411.tddprojectdemo.model.base.SortCriteria;
+import com.mis7ake7411.tddprojectdemo.model.SearchCriteria;
+import com.mis7ake7411.tddprojectdemo.model.SortCriteria;
 import jakarta.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package com.mis7ake7411.tddprojectdemo.model;
+package com.mis7ake7411.tddprojectdemo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

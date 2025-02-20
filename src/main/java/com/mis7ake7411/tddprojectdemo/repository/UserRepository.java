@@ -1,8 +1,7 @@
 package com.mis7ake7411.tddprojectdemo.repository;
 
 
-import com.mis7ake7411.tddprojectdemo.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.mis7ake7411.tddprojectdemo.entity.User;
 import org.springframework.stereotype.Repository;
 
 @Repository

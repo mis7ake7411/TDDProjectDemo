@@ -1,4 +1,4 @@
-package com.mis7ake7411.tddprojectdemo.model.base;
+package com.mis7ake7411.tddprojectdemo.model;
 
 import com.mis7ake7411.tddprojectdemo.enums.SearchOperationEnum;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,6 @@
 package com.mis7ake7411.tddprojectdemo.repository;
 
-import com.mis7ake7411.tddprojectdemo.model.Gym;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.mis7ake7411.tddprojectdemo.entity.Gym;
 import org.springframework.stereotype.Component;
 
 @Component

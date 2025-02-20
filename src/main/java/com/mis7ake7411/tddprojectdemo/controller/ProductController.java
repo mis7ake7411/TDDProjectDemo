@@ -1,6 +1,6 @@
 package com.mis7ake7411.tddprojectdemo.controller;
 
-import com.mis7ake7411.tddprojectdemo.model.Product;
+import com.mis7ake7411.tddprojectdemo.entity.Product;
 import com.mis7ake7411.tddprojectdemo.repository.ProductRepository;
 import jakarta.validation.Valid;
 import java.util.List;

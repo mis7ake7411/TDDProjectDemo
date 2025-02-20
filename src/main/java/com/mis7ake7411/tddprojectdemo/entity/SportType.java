@@ -1,4 +1,4 @@
-package com.mis7ake7411.tddprojectdemo.model;
+package com.mis7ake7411.tddprojectdemo.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
 package com.mis7ake7411.tddprojectdemo.controller;
 
-import com.mis7ake7411.tddprojectdemo.model.User;
+import com.mis7ake7411.tddprojectdemo.entity.User;
 import com.mis7ake7411.tddprojectdemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
