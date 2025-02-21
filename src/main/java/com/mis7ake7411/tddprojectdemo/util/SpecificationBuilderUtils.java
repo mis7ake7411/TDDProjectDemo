@@ -2,15 +2,15 @@ package com.mis7ake7411.tddprojectdemo.util;
 
 import com.mis7ake7411.tddprojectdemo.enums.SearchOperationEnum;
 import com.mis7ake7411.tddprojectdemo.model.HavingCriteria;
-import com.mis7ake7411.tddprojectdemo.model.JoinCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SearchCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SortCriteria;
 import jakarta.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -20,7 +20,8 @@ import org.springframework.data.jpa.domain.Specification;
  * </p>
  */
 public class SpecificationBuilderUtils {
-
+    // 默認初始容量
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
     /**
      * 建構基本查詢條件
      *
@@ -29,8 +30,8 @@ public class SpecificationBuilderUtils {
      * @return 查詢規格
      */
     public static <T> Specification<T> build(List<SearchCriteria<?>> criteriaList) {
-        return build(criteriaList != null ? criteriaList : new ArrayList<>(),
-            null, null, null);
+        return build(criteriaList != null ? criteriaList : Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     /**
@@ -45,7 +46,7 @@ public class SpecificationBuilderUtils {
         List<SortCriteria> orderByList) {
 
         return build(criteriaList != null ? criteriaList : new ArrayList<>(),
-            orderByList != null ? orderByList : new ArrayList<>(), null, null);
+            orderByList != null ? orderByList : Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     /**
@@ -59,9 +60,9 @@ public class SpecificationBuilderUtils {
      */
     public static <T> Specification<T> build(List<SearchCriteria<?>> criteriaList,
         List<SortCriteria> orderByList, List<String> groupByList) {
-        return build(criteriaList != null ? criteriaList : new ArrayList<>(),
-            orderByList != null ? orderByList : new ArrayList<>(),
-            groupByList != null ? groupByList : new ArrayList<>(), null);
+        return build(criteriaList != null ? criteriaList : Collections.emptyList(),
+            orderByList != null ? orderByList : Collections.emptyList(),
+            groupByList != null ? groupByList : Collections.emptyList(), Collections.emptyList());
     }
 
     /**
@@ -78,23 +79,12 @@ public class SpecificationBuilderUtils {
         List<String> groupByList, List<HavingCriteria<?>> havingList) {
 
         return (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>(
+                    criteriaList != null ? criteriaList.size() : DEFAULT_INITIAL_CAPACITY);
 
-            for (SearchCriteria<?> criteria : criteriaList) {
-                if (criteria.getKey() == null) {
-                    continue;
-                }
-                // 當查詢條件 是 IS_NULL 或 IS_NOT_NULL 時，不需要檢查 value
-                if (criteria.getOperation() != SearchOperationEnum.IS_NULL
-                    && criteria.getOperation() != SearchOperationEnum.IS_NOT_NULL
-                    && criteria.getValue() == null) {
-                    continue;
-                }
-                try {
-                    predicates.add(buildPredicate(criteria, root, criteriaBuilder));
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("查詢條件不支援: " + criteria.getKey() + " : " + criteria.getOperation());
-                }
+            // 處理查詢條件
+            if (!CollectionUtils.isEmpty(criteriaList)) {
+                processCriteria(criteriaList, root, criteriaBuilder, predicates);
             }
 
             if (query != null) {
@@ -132,6 +122,41 @@ public class SpecificationBuilderUtils {
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    /**
+     * 處理基本查詢條件
+     */
+    private static <T> void processCriteria(
+            List<SearchCriteria<?>> criteriaList,
+            Root<T> root,
+            CriteriaBuilder criteriaBuilder,
+            List<Predicate> predicates) {
+
+        for (SearchCriteria<?> criteria : criteriaList) {
+            if (!isValidCriteria(criteria)) {
+                continue;
+            }
+            try {
+                predicates.add(buildPredicate(criteria, root, criteriaBuilder));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid search criteria: " + criteria.getKey()
+                        + " : " + criteria.getOperation(), e);
+            }
+        }
+    }
+
+    /**
+     * 檢查查詢條件是否有效
+     */
+    private static boolean isValidCriteria(SearchCriteria<?> criteria) {
+        if (criteria.getKey() == null) {
+            return false;
+        }
+        // 當查詢條件 是 IS_NULL 或 IS_NOT_NULL 時，不需要檢查 value
+        return criteria.getOperation() == SearchOperationEnum.IS_NULL
+                || criteria.getOperation() == SearchOperationEnum.IS_NOT_NULL
+                || criteria.getValue() != null;
     }
 
     /**
@@ -279,68 +304,6 @@ public class SpecificationBuilderUtils {
         }
 
         return havingPredicates;
-    }
-
-    /**
-     * 建構帶子查詢的查詢條件
-     *
-     * @param searchCriteriaList 查詢條件列表
-     * @param joinCriteriaList JOIN 條件列表
-     * @param <T> 實體類型
-     * @return 查詢規格
-     */
-    public static <T> Specification<T> buildWithSubQuery(List<SearchCriteria<?>> searchCriteriaList, List<JoinCriteria> joinCriteriaList) {
-        return (root, query, criteriaBuilder) -> {
-
-            List<Predicate> predicates = new ArrayList<>();
-            Map<String, Join<?, ?>> joins = new HashMap<>();
-
-            // 處理 JOIN
-            if (joinCriteriaList != null) {
-                for (JoinCriteria joinCriteria : joinCriteriaList) {
-                    joins.put(joinCriteria.getAttribute(),
-                        root.join(joinCriteria.getAttribute(), joinCriteria.getJoinType()));
-                }
-            }
-
-            // 處理 WHERE 條件
-            for (SearchCriteria criteria : searchCriteriaList) {
-                Path<?> path;
-
-                // 檢查是否來自 JOIN
-                if (criteria.getKey().contains(".")) {
-                    String[] parts = criteria.getKey().split("\\.");
-                    Join<?, ?> join = joins.get(parts[0]);
-                    path = join.get(parts[1]);
-                } else {
-                    path = root.get(criteria.getKey());
-                }
-
-                switch (criteria.getOperation()) {
-                    case EQUAL:
-                        predicates.add(criteriaBuilder.equal(path, criteria.getValue()));
-                        break;
-                    case LIKE:
-                        predicates.add(criteriaBuilder.like(path.as(String.class), "%" + criteria.getValue() + "%"));
-                        break;
-                    case IN:
-                        if (criteria.getValue() instanceof Collection) {
-                            predicates.add(path.in((Collection<?>) criteria.getValue()));
-                        }
-                        break;
-                    case GREATER_THAN:
-                        predicates.add(criteriaBuilder.greaterThan(path.as(Comparable.class), (Comparable) criteria.getValue()));
-                        break;
-                    case LESS_THAN:
-                        predicates.add(criteriaBuilder.lessThan(path.as(Comparable.class), (Comparable) criteria.getValue()));
-                        break;
-                    default:
-                        throw new IllegalArgumentException("不支援的查詢操作: " + criteria.getOperation());
-                }
-            }
-
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
     }
 
 }
