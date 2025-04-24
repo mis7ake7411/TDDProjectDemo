@@ -6,14 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
 public class DateTimeUtils {
-    public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormattersEnum.DATE_TIME_WITH_DASH.getFormatter();
-
+    public static final String DATE_TIME_WITH_DASH = DateTimeFormattersEnum.DATE_TIME_WITH_DASH.getPattern();
+    public static final String DATE_WITH_DASH = DateTimeFormattersEnum.DATE_WITH_DASH.getPattern();
+    public static final String TIME_WITH_COLON = DateTimeFormattersEnum.TIME_WITH_COLON.getPattern();
     /**
      * 取得當下時間
      *
@@ -36,6 +38,56 @@ public class DateTimeUtils {
     }
 
     /**
+     * 根據指定的天數偏移，取得新的日期時間。
+     * 正數為未來日期，負數為過去日期。
+     *
+     * @param dateTime 日期時間字串
+     * @param n 天數偏移（正數或負數）
+     * @param format 時間格式
+     * @return 指定偏移後的日期時間字串
+     */
+    public static String getAdjustedDateTime(String dateTime, int n, String format) {
+        TemporalAccessor temporal = stringToTemporal(dateTime, format);
+        if (temporal == null) {
+            return null;
+        }
+        if (temporal instanceof LocalDateTime) {
+            LocalDateTime futureDateTime = ((LocalDateTime) temporal).plusDays(n);
+            log.info("futureDateTime: {}", futureDateTime);
+            return localDateTimeToString(futureDateTime, format);
+        } else if (temporal instanceof LocalDate ) {
+            LocalDate futureDate =((LocalDate) temporal).plusDays(n);
+            log.info("futureDate: {}", futureDate);
+            return localDateToString(futureDate, format);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 取得兩個日期時間之間的天數
+     *
+     * @param startDateTime 開始日期時間字串
+     * @param endDateTime 結束日期時間字串
+     * @param format 時間格式
+     * @return 兩個日期時間之間的天數
+     */
+    public static long getDaysBetween(String startDateTime, String endDateTime, String format) {
+        TemporalAccessor start = stringToTemporal(startDateTime, format);
+        TemporalAccessor end = stringToTemporal(endDateTime, format);
+        if (start == null || end == null) {
+            return 0;
+        }
+        if (start instanceof LocalDateTime && end instanceof LocalDateTime) {
+            return Duration.between((LocalDateTime) start, (LocalDateTime) end).toDays();
+        } else if (start instanceof LocalDate && end instanceof LocalDate) {
+            return ChronoUnit.DAYS.between((LocalDate) start, (LocalDate) end);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
      * 將 LocalDateTime 轉換為字串
      *
      * @param localDateTime LocalDateTime
@@ -43,13 +95,44 @@ public class DateTimeUtils {
      * @return 時間字串
      */
     public static String localDateTimeToString(LocalDateTime localDateTime, String format) {
+        format = format == null ? DATE_TIME_WITH_DASH : format;
         if(localDateTime == null || getValidFormat(format) == null) {
             return null;
         }
-        if(format != null) {
-            return localDateTime.format(DateTimeFormattersEnum.getFormatterEnum(format).getFormatter());
+        return localDateTime.format(DateTimeFormattersEnum.getFormatterEnum(format)
+                .getFormatter());
+    }
+
+    /**
+     * 將 LocalDate 轉換為字串
+     *
+     * @param localDate LocalDate
+     * @param format 時間格式
+     * @return 時間字串
+     */
+    public static String localDateToString(LocalDate localDate, String format) {
+        format = format == null ? DATE_WITH_DASH : format;
+        if(localDate == null || getValidFormat(format) == null) {
+            return null;
         }
-        return localDateTime.format(DEFAULT_FORMATTER);
+        return localDate.format(DateTimeFormattersEnum.getFormatterEnum(format)
+                .getFormatter());
+    }
+
+    /**
+     * 將 LocalTime 轉換為字串
+     *
+     * @param localTime LocalTime
+     * @param format 時間格式
+     * @return 時間字串
+     */
+    public static String localTimeToString(LocalTime localTime, String format) {
+        format = format == null ? TIME_WITH_COLON : format;
+        if(localTime == null || getValidFormat(format) == null) {
+            return null;
+        }
+        return localTime.format(DateTimeFormattersEnum.getFormatterEnum(format)
+                .getFormatter());
     }
 
     /**
@@ -57,37 +140,22 @@ public class DateTimeUtils {
      *
      * @param dateTimeStr 時間字串
      * @param format 時間格式
-     * @return TemporalAccessor 物件 (LocalDateTime 或 LocalDate)
+     * @return TemporalAccessor 物件 (LocalDateTime, LocalDate, LocalTime)
      * @throws DateTimeParseException 如果解析失敗
      */
     public static TemporalAccessor stringToTemporal(String dateTimeStr, String format) {
-        if (dateTimeStr == null || getValidFormat(format) == null) {
+        if (dateTimeStr == null) {
             return null;
         }
+        DateTimeFormatter formatter = (format == null || !isValidFormat(format))
+                ? DateTimeFormattersEnum.getFormatterEnum(DATE_TIME_WITH_DASH).getFormatter()
+                : getValidFormat(format);
 
-        DateTimeFormatter formatter = format != null 
-            ? DateTimeFormattersEnum.getFormatterEnum(format).getFormatter() 
-            : DEFAULT_FORMATTER;
-
-        // 檢查格式是否包含時間元素
-        boolean hasTimeElement = format != null && 
-            (format.contains("H") || format.contains("h") || 
-             format.contains("m") || format.contains("s"));
-
-        try {
-            if (hasTimeElement) {
-                return LocalDateTime.parse(dateTimeStr, formatter);
-            } else {
-                return LocalDate.parse(dateTimeStr, formatter);
-            }
-        } catch (DateTimeParseException e) {
-            log.error("解析時間字串失敗: {}, 格式: {}", dateTimeStr, format, e);
-            throw e;
-        }
+        return parseTemporal(dateTimeStr, formatter);
     }
 
     /**
-     * 將字串轉換為 LocalDateTime
+     * 將時間字串轉換為 LocalDateTime
      *
      * @param dateTimeStr 時間字串
      * @param format 時間格式
@@ -99,7 +167,7 @@ public class DateTimeUtils {
         if (temporal instanceof LocalDateTime) {
             return (LocalDateTime) temporal;
         }
-        throw new IllegalArgumentException("無法將字串轉換為 LocalDateTime，格式不包含時間元素");
+        throw new IllegalArgumentException("無法將字串轉換為 LocalDateTime: " + dateTimeStr + "，格式不包含時間元素");
     }
 
     /**
@@ -114,12 +182,9 @@ public class DateTimeUtils {
         TemporalAccessor temporal = stringToTemporal(dateStr, format);
         if (temporal instanceof LocalDate) {
             return (LocalDate) temporal;
-        } else if (temporal instanceof LocalDateTime) {
-            return ((LocalDateTime) temporal).toLocalDate();
         }
-        throw new IllegalArgumentException("無法將字串轉換為 LocalDate");
+        throw new IllegalArgumentException("無法將字串轉換為 LocalDate: " + dateStr);
     }
-
 
     /**
      * 將 LocalDateTime 轉換為 Date
@@ -142,6 +207,7 @@ public class DateTimeUtils {
      */
     public static LocalDateTime dateToLocalDateTime(Date date) {
         if (date == null) {
+            log.warn("Date is null");
             return null;
         }
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
@@ -187,10 +253,17 @@ public class DateTimeUtils {
         try {
             return LocalDateTime.parse(dateTime, formatter);
         } catch (DateTimeParseException e) {
+            log.warn("解析 LocalDateTime 失敗: {}", dateTime);
             try {
                 return LocalDate.parse(dateTime, formatter);
             } catch (DateTimeParseException ex) {
-                return LocalTime.parse(dateTime, formatter);
+                log.warn("解析 LocalDate 失敗: {}", dateTime);
+                try {
+                    return LocalTime.parse(dateTime, formatter);
+                } catch (DateTimeParseException exc) {
+                    log.warn("解析 LocalTime 失敗: {}", dateTime);
+                    throw exc;
+                }
             }
         }
     }
@@ -226,20 +299,7 @@ public class DateTimeUtils {
         if(format == null) {
             return false;
         }
-        try {
-          DateTimeFormattersEnum.getFormatterEnum(format);
-          return true;
-        } catch (IllegalArgumentException e) {
-            try {
-              DateTimeFormatter.ofPattern(format);
-              return true;
-            } catch (IllegalArgumentException ex) {
-                if (log.isErrorEnabled()) {
-                    log.error("無效的時間格式 : {}", format);
-                }
-                return false;
-            }
-        }
+        return getValidFormat(format) != null;
     }
 
     /**
@@ -249,9 +309,6 @@ public class DateTimeUtils {
      * @return DateTimeFormatter
      */
     public static DateTimeFormatter getValidFormat(String format) {
-        if(format == null) {
-            return null;
-        }
         try {
             return DateTimeFormattersEnum.getFormatterEnum(format).getFormatter();
         } catch (IllegalArgumentException e) {

@@ -251,7 +251,7 @@ public class SpecificationBuilderUtils {
         List<Predicate> havingPredicates = new ArrayList<>();
 
         for (HavingCriteria<?> having : havingList) {
-            Expression<? extends Number> aggregateExpression;
+            Expression aggregateExpression;
             Comparable<Object> comparableValue;
             // 確認 value 是否為 Comparable
             if (!(having.getValue() instanceof Comparable)) {
