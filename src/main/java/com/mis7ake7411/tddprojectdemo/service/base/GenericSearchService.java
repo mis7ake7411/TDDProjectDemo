@@ -1,4 +1,4 @@
-package com.mis7ake7411.tddprojectdemo.service;
+package com.mis7ake7411.tddprojectdemo.service.base;
 
 import com.mis7ake7411.tddprojectdemo.model.HavingCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SearchCriteria;

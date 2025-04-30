@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class SportType {

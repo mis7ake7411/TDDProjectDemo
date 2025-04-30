@@ -1,9 +1,9 @@
-package com.mis7ake7411.tddprojectdemo.service.Impl;
+package com.mis7ake7411.tddprojectdemo.service.base.Impl;
 
 import com.mis7ake7411.tddprojectdemo.model.HavingCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SearchCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SortCriteria;
-import com.mis7ake7411.tddprojectdemo.service.GenericSearchService;
+import com.mis7ake7411.tddprojectdemo.service.base.GenericSearchService;
 import com.mis7ake7411.tddprojectdemo.util.SpecificationBuilderUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
