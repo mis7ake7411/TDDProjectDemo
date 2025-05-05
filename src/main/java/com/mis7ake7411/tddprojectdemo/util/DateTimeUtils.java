@@ -2,6 +2,7 @@ package com.mis7ake7411.tddprojectdemo.util;
 
 import com.mis7ake7411.tddprojectdemo.enums.DateTimeFormattersEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -343,6 +344,14 @@ public class DateTimeUtils {
             }
         }
         throw new DateTimeParseException("找不到有效的時間格式 : " + dateTime, dateTime, 0);
+    }
+
+    public static LocalDateTime parseToLocalDateTime(String date, boolean isEndOfDay, String format) {
+        if (StringUtils.isNotEmpty(date)) {
+            LocalDate localDate = DateTimeUtils.stringToLocalDate(date, format);
+            return isEndOfDay ? localDate.atTime(LocalTime.MAX) : localDate.atStartOfDay();
+        }
+        return null;
     }
 }
 

@@ -1,23 +1,26 @@
 package com.mis7ake7411.tddprojectdemo.service.smsHistory.impl;
 
+import com.mis7ake7411.tddprojectdemo.enums.DateTimeFormattersEnum;
 import com.mis7ake7411.tddprojectdemo.model.bo.QuerySmsHistoryBO;
+import com.mis7ake7411.tddprojectdemo.model.dto.PageResponseDTO;
 import com.mis7ake7411.tddprojectdemo.model.dto.QuerySmsHistoryDataDTO;
 import com.mis7ake7411.tddprojectdemo.model.vo.QuerySmsHistoryVO;
+import com.mis7ake7411.tddprojectdemo.repository.SmsHistoryQueryRepository;
 import com.mis7ake7411.tddprojectdemo.repository.SmsHistoryRepository;
+import com.mis7ake7411.tddprojectdemo.service.agent.PersonPublicService;
 import com.mis7ake7411.tddprojectdemo.service.smsHistory.SmsHistoryService;
+import com.mis7ake7411.tddprojectdemo.util.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,14 +31,16 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SmsHistoryServiceImpl implements SmsHistoryService {
     private final SmsHistoryRepository smsHistoryRepository;
+    private final SmsHistoryQueryRepository smsHistoryQueryRepository;
+    private final PersonPublicService personPublicService;
 
     @Transactional(readOnly = true)
     @Override
     public QuerySmsHistoryVO querySmsHistoryData(QuerySmsHistoryBO bo) {
         log.info("querySmsHistoryData : {}", bo);
 
-        LocalDateTime sendDateStart = parseDate(bo.getSendDateStart(), false);
-        LocalDateTime sendDateEnd = parseDate(bo.getSendDateEnd(), true);
+        LocalDateTime sendDateStart = DateTimeUtils.parseToLocalDateTime(bo.getSendDateStart(), false, DateTimeFormattersEnum.DATE_WITH_DASH.getPattern());
+        LocalDateTime sendDateEnd = DateTimeUtils.parseToLocalDateTime(bo.getSendDateEnd(), true, DateTimeFormattersEnum.DATE_WITH_DASH.getPattern());
         String phoneNumber = bo.getPhoneNumber();
         Set<String> agentIDList = bo.getAgentIDList() != null ? bo.getAgentIDList() : Collections.emptySet();
         Set<String> smsItemIDList = bo.getSmsItemIDList() != null ? bo.getSmsItemIDList() : Collections.emptySet();
@@ -51,18 +56,19 @@ public class SmsHistoryServiceImpl implements SmsHistoryService {
             Pageable pageable = PageRequest.of(page, size);
             pageSmsHistoryData = smsHistoryRepository.querySmsHistoryData(agentIDList, sendDateStart, sendDateEnd, phoneNumber, smsItemIDList, isIvrSend, hasAgentId, hasSmsItemId, pageable);
 
-            for (QuerySmsHistoryDataDTO dto : pageSmsHistoryData.getContent()) {
-                QuerySmsHistoryVO.SmsHistoryDTO vo = new QuerySmsHistoryVO.SmsHistoryDTO();
-                vo.setSmsHistoryID(dto.getSmsHistoryID());
-                vo.setSendDate(dto.getSendDate());
-                vo.setPhoneNumber(dto.getPhoneNumber());
-                vo.setSmsItemName(joinItemNameWithArrow(dto.getSmsCategoryName(), dto.getSmsItemName()));
-                Long agentID = StringUtils.isNotEmpty(dto.getAgentID()) ? Long.valueOf(dto.getAgentID()) : null;
+//            for (QuerySmsHistoryDataDTO dto : pageSmsHistoryData.getContent()) {
+//                QuerySmsHistoryVO.SmsHistoryDTO vo = new QuerySmsHistoryVO.SmsHistoryDTO();
+//                vo.setSmsHistoryID(dto.getSmsHistoryID());
+//                vo.setSendDate(dto.getSendDate());
+//                vo.setPhoneNumber(dto.getPhoneNumber());
+//                vo.setSmsItemName(joinItemNameWithArrow(dto.getSmsCategoryName(), dto.getSmsItemName()));
+//                Long agentID = StringUtils.isNotEmpty(dto.getAgentID()) ? Long.valueOf(dto.getAgentID()) : null;
 //                vo.setAgentName(agentID != null ? personPublicService.getPersonDNAndAccount(agentID) : "");
-                vo.setIsIvrSend(dto.getIsIvrSend());
-                vo.setIvrCategory(dto.getIvrCategory());
-                dtoList.add(vo);
-            }
+//                vo.setIsIvrSend(dto.getIsIvrSend());
+//                vo.setIvrCategory(dto.getIvrCategory());
+//                dtoList.add(vo);
+//            }
+            dtoList = convertToDTO(pageSmsHistoryData.getContent());
             page++;
         } while (pageSmsHistoryData.hasNext());
 
@@ -72,12 +78,69 @@ public class SmsHistoryServiceImpl implements SmsHistoryService {
         return querySmsHistoryVO;
     }
 
-    private LocalDateTime parseDate(String date, boolean isEndOfDay) {
-        if (StringUtils.isNotEmpty(date)) {
-            LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            return isEndOfDay ? localDate.atTime(LocalTime.MAX) : localDate.atStartOfDay();
+    @Transactional(readOnly = true)
+    @Override
+    public QuerySmsHistoryVO querySmsHistoryDataWithQueryDSL(QuerySmsHistoryBO bo) {
+        int page = 0;
+        int size = 1000;  // 每次查詢 1000 筆
+        List<QuerySmsHistoryVO.SmsHistoryDTO> dtoList = new ArrayList<>();
+        Page<QuerySmsHistoryDataDTO> pageSmsHistoryData;
+        do {
+            Pageable pageable = PageRequest.of(page, size);
+            pageSmsHistoryData = smsHistoryQueryRepository.querySmsHistoryDataWithQueryDSL(bo, pageable);
+
+//            for (QuerySmsHistoryDataDTO dto : pageSmsHistoryData.getContent()) {
+//                QuerySmsHistoryVO.SmsHistoryDTO vo = new QuerySmsHistoryVO.SmsHistoryDTO();
+//                vo.setSmsHistoryID(dto.getSmsHistoryID());
+//                vo.setSendDate(dto.getSendDate());
+//                vo.setPhoneNumber(dto.getPhoneNumber());
+//                vo.setSmsItemName(joinItemNameWithArrow(dto.getSmsCategoryName(), dto.getSmsItemName()));
+//                Long agentID = StringUtils.isNotEmpty(dto.getAgentID()) ? Long.valueOf(dto.getAgentID()) : null;
+//                vo.setAgentName(agentID != null ? personPublicService.getPersonDNAndAccount(agentID) : "");
+//                vo.setIsIvrSend(dto.getIsIvrSend());
+//                vo.setIvrCategory(dto.getIvrCategory());
+//                dtoList.add(vo);
+//            }
+            dtoList = convertToDTO(pageSmsHistoryData.getContent());
+            page++;
+        } while (pageSmsHistoryData.hasNext());
+
+        QuerySmsHistoryVO querySmsHistoryVO = new QuerySmsHistoryVO();
+        querySmsHistoryVO.setContent(dtoList);
+
+        return querySmsHistoryVO;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponseDTO<QuerySmsHistoryVO.SmsHistoryDTO> querySmsHistoryDataWithQueryDSL(QuerySmsHistoryBO bo, int pageNumber, int pageSize) {
+        log.info("querySmsHistoryDataWithQueryDSL : {}", bo);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+        Page<QuerySmsHistoryDataDTO> pageSmsHistoryData = smsHistoryQueryRepository.querySmsHistoryDataWithQueryDSL(bo, pageable);
+
+        List<QuerySmsHistoryVO.SmsHistoryDTO> dtoList = convertToDTO(pageSmsHistoryData.getContent());
+
+        // 將查詢結果轉換為 Page 物件
+        Page<QuerySmsHistoryVO.SmsHistoryDTO> pageResult = new PageImpl<>(dtoList, pageable, pageSmsHistoryData.getTotalElements());
+
+        return new PageResponseDTO<>(pageResult);
+    }
+
+    private List<QuerySmsHistoryVO.SmsHistoryDTO> convertToDTO(List<QuerySmsHistoryDataDTO> dataList) {
+        List<QuerySmsHistoryVO.SmsHistoryDTO> dtoList = new ArrayList<>();
+        for (QuerySmsHistoryDataDTO data : dataList) {
+            QuerySmsHistoryVO.SmsHistoryDTO dto = new QuerySmsHistoryVO.SmsHistoryDTO();
+            dto.setSmsHistoryID(data.getSmsHistoryID());
+            dto.setSendDate(data.getSendDate());
+            dto.setPhoneNumber(data.getPhoneNumber());
+            dto.setSmsItemName(joinItemNameWithArrow(data.getSmsCategoryName(), data.getSmsItemName()));
+            Long agentID = StringUtils.isNotEmpty(data.getAgentID()) ? Long.valueOf(data.getAgentID()) : null;
+            dto.setAgentName(agentID != null ? personPublicService.getPersonDNAndAccount(agentID) : "");
+            dto.setIsIvrSend(data.getIsIvrSend());
+            dto.setIvrCategory(data.getIvrCategory());
+            dtoList.add(dto);
         }
-        return null;
+        return dtoList;
     }
 
     private String joinItemNameWithArrow(String left, String right){
