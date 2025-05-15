@@ -56,18 +56,6 @@ public class SmsHistoryServiceImpl implements SmsHistoryService {
             Pageable pageable = PageRequest.of(page, size);
             pageSmsHistoryData = smsHistoryRepository.querySmsHistoryData(agentIDList, sendDateStart, sendDateEnd, phoneNumber, smsItemIDList, isIvrSend, hasAgentId, hasSmsItemId, pageable);
 
-//            for (QuerySmsHistoryDataDTO dto : pageSmsHistoryData.getContent()) {
-//                QuerySmsHistoryVO.SmsHistoryDTO vo = new QuerySmsHistoryVO.SmsHistoryDTO();
-//                vo.setSmsHistoryID(dto.getSmsHistoryID());
-//                vo.setSendDate(dto.getSendDate());
-//                vo.setPhoneNumber(dto.getPhoneNumber());
-//                vo.setSmsItemName(joinItemNameWithArrow(dto.getSmsCategoryName(), dto.getSmsItemName()));
-//                Long agentID = StringUtils.isNotEmpty(dto.getAgentID()) ? Long.valueOf(dto.getAgentID()) : null;
-//                vo.setAgentName(agentID != null ? personPublicService.getPersonDNAndAccount(agentID) : "");
-//                vo.setIsIvrSend(dto.getIsIvrSend());
-//                vo.setIvrCategory(dto.getIvrCategory());
-//                dtoList.add(vo);
-//            }
             dtoList = convertToDTO(pageSmsHistoryData.getContent());
             page++;
         } while (pageSmsHistoryData.hasNext());
@@ -89,18 +77,6 @@ public class SmsHistoryServiceImpl implements SmsHistoryService {
             Pageable pageable = PageRequest.of(page, size);
             pageSmsHistoryData = smsHistoryQueryRepository.querySmsHistoryDataWithQueryDSL(bo, pageable);
 
-//            for (QuerySmsHistoryDataDTO dto : pageSmsHistoryData.getContent()) {
-//                QuerySmsHistoryVO.SmsHistoryDTO vo = new QuerySmsHistoryVO.SmsHistoryDTO();
-//                vo.setSmsHistoryID(dto.getSmsHistoryID());
-//                vo.setSendDate(dto.getSendDate());
-//                vo.setPhoneNumber(dto.getPhoneNumber());
-//                vo.setSmsItemName(joinItemNameWithArrow(dto.getSmsCategoryName(), dto.getSmsItemName()));
-//                Long agentID = StringUtils.isNotEmpty(dto.getAgentID()) ? Long.valueOf(dto.getAgentID()) : null;
-//                vo.setAgentName(agentID != null ? personPublicService.getPersonDNAndAccount(agentID) : "");
-//                vo.setIsIvrSend(dto.getIsIvrSend());
-//                vo.setIvrCategory(dto.getIvrCategory());
-//                dtoList.add(vo);
-//            }
             dtoList = convertToDTO(pageSmsHistoryData.getContent());
             page++;
         } while (pageSmsHistoryData.hasNext());

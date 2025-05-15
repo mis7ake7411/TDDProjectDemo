@@ -148,7 +148,7 @@ public class DateTimeUtils {
         if (dateTimeStr == null) {
             return null;
         }
-        DateTimeFormatter formatter = (format == null || !isValidFormat(format))
+        DateTimeFormatter formatter = (!isValidFormat(format))
                 ? DateTimeFormattersEnum.getFormatterEnum(DATE_TIME_WITH_DASH).getFormatter()
                 : getValidFormat(format);
 
@@ -254,15 +254,15 @@ public class DateTimeUtils {
         try {
             return LocalDateTime.parse(dateTime, formatter);
         } catch (DateTimeParseException e) {
-            log.warn("解析 LocalDateTime 失敗: {}", dateTime);
             try {
                 return LocalDate.parse(dateTime, formatter);
             } catch (DateTimeParseException ex) {
-                log.warn("解析 LocalDate 失敗: {}", dateTime);
                 try {
                     return LocalTime.parse(dateTime, formatter);
                 } catch (DateTimeParseException exc) {
-                    log.warn("解析 LocalTime 失敗: {}", dateTime);
+                    if (log.isErrorEnabled()) {
+                        log.error("無法解析日期時間 : {}", dateTime);
+                    }
                     throw exc;
                 }
             }
@@ -346,6 +346,14 @@ public class DateTimeUtils {
         throw new DateTimeParseException("找不到有效的時間格式 : " + dateTime, dateTime, 0);
     }
 
+    /**
+     * 將字串轉換為 LocalDateTime，並根據 isEndOfDay 參數決定是開始還是結束時間
+     *
+     * @param date 日期字串
+     * @param isEndOfDay 是否為結束時間
+     * @param format 時間格式
+     * @return LocalDateTime 物件
+     */
     public static LocalDateTime parseToLocalDateTime(String date, boolean isEndOfDay, String format) {
         if (StringUtils.isNotEmpty(date)) {
             LocalDate localDate = DateTimeUtils.stringToLocalDate(date, format);

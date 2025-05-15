@@ -3,7 +3,7 @@ package com.mis7ake7411.tddprojectdemo.service.smsHistory.impl;
 import com.mis7ake7411.tddprojectdemo.model.bo.QuerySmsHistoryBO;
 import com.mis7ake7411.tddprojectdemo.model.dto.PageResponseDTO;
 import com.mis7ake7411.tddprojectdemo.model.vo.QuerySmsHistoryVO;
-import com.mis7ake7411.tddprojectdemo.util.BaseUtils;
+import com.mis7ake7411.tddprojectdemo.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class SmsHistoryServiceImplTest {
         bo.setSendDateEnd("2025-04-17");
 //        bo.setSmsSendType("Y");
         QuerySmsHistoryVO result = smsHistoryService.querySmsHistoryData(bo);
-        log.info(BaseUtils.toPrettyJson(result));
+        log.info(JsonUtils.toPrettyJson(result));
         // Assert
         assertNotNull(result);
     }
@@ -38,7 +38,7 @@ class SmsHistoryServiceImplTest {
         bo.setSendDateEnd("2025-04-17");
 
         QuerySmsHistoryVO result = smsHistoryService.querySmsHistoryDataWithQueryDSL(bo);
-        log.info(BaseUtils.toPrettyJson(result));
+        log.info(JsonUtils.toPrettyJson(result));
         // Assert
         assertNotNull(result);
     }
@@ -51,7 +51,7 @@ class SmsHistoryServiceImplTest {
         bo.setSendDateEnd("2025-04-17");
 
         PageResponseDTO<QuerySmsHistoryVO.SmsHistoryDTO> result = smsHistoryService.querySmsHistoryDataWithQueryDSL(bo, 1, 10);
-        log.info(BaseUtils.toPrettyJson(result));
+        log.info(JsonUtils.toPrettyJson(result));
         // Assert
         assertNotNull(result);
     }
