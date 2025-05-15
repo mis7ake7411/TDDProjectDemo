@@ -12,6 +12,7 @@ import com.mis7ake7411.tddprojectdemo.service.smsHistory.SmsHistoryService;
 import com.mis7ake7411.tddprojectdemo.util.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,8 +43,8 @@ public class SmsHistoryServiceImpl implements SmsHistoryService {
         LocalDateTime sendDateStart = DateTimeUtils.parseToLocalDateTime(bo.getSendDateStart(), false, DateTimeFormattersEnum.DATE_WITH_DASH.getPattern());
         LocalDateTime sendDateEnd = DateTimeUtils.parseToLocalDateTime(bo.getSendDateEnd(), true, DateTimeFormattersEnum.DATE_WITH_DASH.getPattern());
         String phoneNumber = bo.getPhoneNumber();
-        Set<String> agentIDList = bo.getAgentIDList() != null ? bo.getAgentIDList() : Collections.emptySet();
-        Set<String> smsItemIDList = bo.getSmsItemIDList() != null ? bo.getSmsItemIDList() : Collections.emptySet();
+        Set<String> agentIDList = CollectionUtils.isNotEmpty(bo.getAgentIDList()) ? bo.getAgentIDList() : Collections.emptySet();
+        Set<String> smsItemIDList = CollectionUtils.isNotEmpty(bo.getSmsItemIDList()) ? bo.getSmsItemIDList() : Collections.emptySet();
         String isIvrSend = bo.getSmsSendType();
         boolean hasAgentId = !agentIDList.isEmpty();
         boolean hasSmsItemId = !smsItemIDList.isEmpty();
@@ -110,8 +111,7 @@ public class SmsHistoryServiceImpl implements SmsHistoryService {
             dto.setSendDate(data.getSendDate());
             dto.setPhoneNumber(data.getPhoneNumber());
             dto.setSmsItemName(joinItemNameWithArrow(data.getSmsCategoryName(), data.getSmsItemName()));
-            Long agentID = StringUtils.isNotEmpty(data.getAgentID()) ? Long.valueOf(data.getAgentID()) : null;
-            dto.setAgentName(agentID != null ? personPublicService.getPersonDNAndAccount(agentID) : "");
+            dto.setAgentName(data.getAgentName());
             dto.setIsIvrSend(data.getIsIvrSend());
             dto.setIvrCategory(data.getIvrCategory());
             dtoList.add(dto);

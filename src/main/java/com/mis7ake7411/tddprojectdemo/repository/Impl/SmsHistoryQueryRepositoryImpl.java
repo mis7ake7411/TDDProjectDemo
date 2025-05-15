@@ -55,12 +55,14 @@ public class SmsHistoryQueryRepositoryImpl implements SmsHistoryQueryRepository 
                         item.Subject,
                         history.agentID,
                         history.isIvrSend,
-                        history.ivrCategory
+                        history.ivrCategory,
+                        person.USER_NAME
                 ))
                 .from(history)
                 .leftJoin(categoryItem).on(history.smsItemID.eq(categoryItem.itemID))
                 .leftJoin(item).on(item.DBID.stringValue().eq(categoryItem.itemID))
                 .leftJoin(category).on(category.DBID.stringValue().eq(categoryItem.CategoryID))
+                .leftJoin(person).on(person.DBID.stringValue().eq(history.agentID))
                 .where(dynamicBuilder)
                 .orderBy(orderBy.toArray(new OrderSpecifier[0]))
                 .offset(pageable.getOffset())

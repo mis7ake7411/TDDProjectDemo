@@ -23,5 +23,7 @@ public class QuerySmsHistoryDataDTO {
     private String isIvrSend;
     /** IVR 類別 */
     private String ivrCategory;
+
+    private String agentName;
 }
 

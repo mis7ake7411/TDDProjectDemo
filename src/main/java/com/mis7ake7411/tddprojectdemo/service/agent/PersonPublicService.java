@@ -2,6 +2,7 @@ package com.mis7ake7411.tddprojectdemo.service.agent;
 
 import com.mis7ake7411.tddprojectdemo.entity.CfgPerson;
 import com.mis7ake7411.tddprojectdemo.repository.CfgPersonRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,10 +16,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PersonPublicService {
 
-    @Autowired
-    private CfgPersonRepository cfg_PersonRepository;
+    private final CfgPersonRepository cfg_PersonRepository;
 
     @Cacheable(value = "getAllPersonDataCache")
     public Map<Long, CfgPerson> getAllPersonData() {

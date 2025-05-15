@@ -63,7 +63,8 @@ public interface SmsHistoryRepository extends JpaRepository<SmsHistory, Long> {
                         tsti.Subject,
                         tsh.agentID, 
                         tsh.isIvrSend, 
-                        tsh.ivrCategory
+                        tsh.ivrCategory,
+                        cfp.USER_NAME
                     )
                     FROM SmsHistory  tsh
                     LEFT JOIN SMSTemplateCategoryItem tsci
@@ -72,6 +73,8 @@ public interface SmsHistoryRepository extends JpaRepository<SmsHistory, Long> {
                         ON tsti.DBID = Cast(tsci.itemID AS Long)
                     LEFT JOIN SMSTemplateCategory tsc
                         ON tsc.DBID =  Cast(tsci.CategoryID AS Long)
+                    LEFT JOIN CfgPerson cfp
+                        ON cfp.DBID = Cast(tsh.agentID AS Long)
                     WHERE (:sendDateStart IS NULL OR tsh.sendDateTime >= :sendDateStart)
                         AND (:sendDateEnd IS NULL OR tsh.sendDateTime <= :sendDateEnd)
                         AND (:phoneNumber IS NULL OR tsh.phoneNumber LIKE CONCAT(:phoneNumber, '%'))
