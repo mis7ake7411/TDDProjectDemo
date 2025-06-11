@@ -12,7 +12,11 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Getter;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -97,5 +101,16 @@ public class JsonUtils {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to parse JSON string to JsonNode", e);
         }
+    }
+
+    public static <T> T readJsonFile(String classpathFile, TypeReference<T> typeReference) throws IOException {
+        Resource resource = new ClassPathResource(classpathFile);
+        try (InputStream inputStream = resource.getInputStream()) {
+            return objectMapper.readValue(inputStream, typeReference);
+        }
+    }
+
+    public static <T> T readJson(InputStream inputStream, TypeReference<T> typeReference) throws IOException {
+        return objectMapper.readValue(inputStream, typeReference);
     }
 }
