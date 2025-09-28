@@ -1,21 +1,24 @@
 package com.mis7ake7411.tddprojectdemo.util;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.mis7ake7411.tddprojectdemo.enums.DateTimeFormattersEnum;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAccessor;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAccessor;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 class DateTimeUtilsTest {

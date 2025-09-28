@@ -2,15 +2,12 @@ package com.mis7ake7411.tddprojectdemo.test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
-import java.io.InputStream;
 
 public class JsonRenameTool {
     public static void main(String[] args) throws Exception {

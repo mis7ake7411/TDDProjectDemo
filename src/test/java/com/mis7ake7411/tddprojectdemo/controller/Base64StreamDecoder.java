@@ -4,9 +4,9 @@ package com.mis7ake7411.tddprojectdemo.controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.Base64;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 public class Base64StreamDecoder {
     public static void main(String[] args) throws Exception {
