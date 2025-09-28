@@ -1,10 +1,9 @@
 package com.mis7ake7411.tddprojectdemo.enums;
 
-import lombok.Getter;
-
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
 
 @Getter
 public enum DateTimeFormattersEnum {

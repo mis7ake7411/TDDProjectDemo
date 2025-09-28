@@ -1,19 +1,18 @@
 package com.mis7ake7411.tddprojectdemo.service.base;
 
+import java.io.File;
+import java.util.Base64;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.util.Base64;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

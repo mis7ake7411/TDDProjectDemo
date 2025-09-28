@@ -5,14 +5,13 @@ import com.mis7ake7411.tddprojectdemo.model.CityDistrictData;
 import com.mis7ake7411.tddprojectdemo.util.AddressValidator;
 import com.mis7ake7411.tddprojectdemo.util.JsonUtils;
 import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 @Slf4j
 @Service

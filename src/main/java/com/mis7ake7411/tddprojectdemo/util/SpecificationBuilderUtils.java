@@ -4,12 +4,16 @@ import com.mis7ake7411.tddprojectdemo.enums.SearchOperationEnum;
 import com.mis7ake7411.tddprojectdemo.model.HavingCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SearchCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SortCriteria;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.jpa.domain.Specification;
 

@@ -2,9 +2,8 @@ package com.mis7ake7411.tddprojectdemo.model.bo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-
 import java.util.Set;
+import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)

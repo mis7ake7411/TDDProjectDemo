@@ -1,11 +1,10 @@
 package com.mis7ake7411.tddprojectdemo.service.base;
 
+import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor

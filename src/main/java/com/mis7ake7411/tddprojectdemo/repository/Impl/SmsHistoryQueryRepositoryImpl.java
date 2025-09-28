@@ -1,6 +1,10 @@
 package com.mis7ake7411.tddprojectdemo.repository.Impl;
 
-import com.mis7ake7411.tddprojectdemo.entity.*;
+import com.mis7ake7411.tddprojectdemo.entity.QCfgPerson;
+import com.mis7ake7411.tddprojectdemo.entity.QSMSTemplateCategory;
+import com.mis7ake7411.tddprojectdemo.entity.QSMSTemplateCategoryItem;
+import com.mis7ake7411.tddprojectdemo.entity.QSMSTemplateItem;
+import com.mis7ake7411.tddprojectdemo.entity.QSmsHistory;
 import com.mis7ake7411.tddprojectdemo.enums.DateTimeFormattersEnum;
 import com.mis7ake7411.tddprojectdemo.model.bo.QuerySmsHistoryBO;
 import com.mis7ake7411.tddprojectdemo.model.dto.QuerySmsHistoryDataDTO;
@@ -10,6 +14,9 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,10 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Repository

@@ -1,8 +1,7 @@
 package com.mis7ake7411.tddprojectdemo.model;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class CityDistrictData {

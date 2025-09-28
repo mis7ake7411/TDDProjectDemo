@@ -5,12 +5,11 @@ import com.mis7ake7411.tddprojectdemo.model.SearchCriteria;
 import com.mis7ake7411.tddprojectdemo.model.SortCriteria;
 import com.mis7ake7411.tddprojectdemo.service.base.GenericSearchService;
 import com.mis7ake7411.tddprojectdemo.util.SpecificationBuilderUtils;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
-import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service

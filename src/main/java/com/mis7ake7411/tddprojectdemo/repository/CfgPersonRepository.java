@@ -2,14 +2,13 @@ package com.mis7ake7411.tddprojectdemo.repository;
 
 import com.mis7ake7411.tddprojectdemo.entity.CfgPerson;
 import com.mis7ake7411.tddprojectdemo.model.dto.PilotNameDTO;
+import java.util.List;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * tblCfg_Person 儲存庫
