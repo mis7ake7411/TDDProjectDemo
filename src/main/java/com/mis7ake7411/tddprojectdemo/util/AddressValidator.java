@@ -66,22 +66,22 @@ public class AddressValidator {
 
         // 可逐段匹配或用 find() 檢核出現次數
         if (!duanPattern.matcher(address).find()) {
-            System.out.println(" 段格式不符！");
+            System.out.println(" 段格式不符!");
             return false;
         }
 
         if (!numericPattern.matcher(address).find()) {
-            System.out.println(" 巷/弄/號 格式不符！");
+            System.out.println(" 巷/弄/號 格式不符!");
             return false;
         }
 
         if (!buildingPattern.matcher(address).find()) {
-            System.out.println(" 棟 格式不符！");
+            System.out.println(" 棟 格式不符!");
             return false;
         }
 
         if (!louZhiPattern.matcher(address).find()) {
-            System.out.println(" 樓之 格式不符！");
+            System.out.println(" 樓之 格式不符!");
             return false;
         }
 
